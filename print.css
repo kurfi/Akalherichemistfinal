@@ -1,0 +1,22 @@
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-receipt, #printable-receipt * {
+    visibility: visible;
+  }
+  #printable-receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}
+
+.receipt-80mm {
+  width: 302px; /* 80mm is approx 302px at 96dpi */
+}
+
+.receipt-58mm {
+  width: 219px; /* 58mm is approx 219px at 96dpi */
+}

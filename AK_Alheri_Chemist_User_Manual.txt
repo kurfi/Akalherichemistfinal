@@ -1,0 +1,166 @@
+AK ALHERI CHEMIST - USER MANUAL & OPERATING GUIDE
+==================================================
+
+Welcome to the AK Alheri Chemist POS System. This manual guides you through every feature of the application.
+
+1. GETTING STARTED
+------------------
+- Login:
+  - Open the application.
+  - Enter your username and password.
+  - Default Admin Credentials (Change immediately in Settings):
+    - Username: admin
+    - Password: password
+- Roles:
+  - Admin: Full access to all features (Inventory, Reports, Settings).
+  - Cashier: Restricted access (POS, Customers, Dashboard).
+
+2. DASHBOARD
+------------
+- The Dashboard provides a quick overview of your business performance.
+- Key Metrics:
+  - Total Sales (Today): Sum of all completed transactions.
+  - Transactions: Number of sales made.
+  - Low Stock Alerts: Products running low.
+  - Expiring Batches: Items expiring within 90 days.
+  - Recent Activity: A log of the latest sales.
+
+3. POS (POINT OF SALE) SYSTEM
+-----------------------------
+The POS screen is where you process daily sales.
+
+A. Processing a Sale:
+   1. Search Product:
+      - Click the search bar (top-left).
+      - Type a product name or scan a barcode.
+      - Click the product in the list to add it to the cart.
+   2. Adjust Quantity:
+      - In the Cart (right panel), use "+" or "-" buttons to change quantity.
+      - Click "Remove" to delete an item.
+   3. Discount:
+      - Enter a discount amount in the "Discount" field at the bottom of the cart.
+
+B. Payment Methods:
+   - Click "Pay Now".
+   - Select Method:
+     - Cash: Standard cash payment.
+     - POS / Card: Payment via bank terminal.
+     - Transfer: Bank transfer confirmation.
+     - Multipay: Split payment (e.g., part Cash, part Transfer).
+     - Debt / Credit: Assign sale to a registered customer's account (Customer must be selected first).
+
+C. Hold & Resume Sale:
+   - If a customer forgets an item, click "Hold" (Pause icon).
+   - The cart clears for the next customer.
+   - To Resume: Click the "Held" tab in the right panel and select "Resume".
+
+D. Receipts:
+   - After payment, a receipt preview appears.
+   - Click "Save PDF" or "Save Image" to save the receipt to your computer (Documents/AK Alheri Chemist/Receipts).
+   - Click "Print" (if printer is connected) or use the system print dialog.
+
+4. INVENTORY MANAGEMENT (Admin Only)
+------------------------------------
+Manage your product stock and pricing.
+
+A. Adding a Product:
+   - Go to "Inventory".
+   - Click "Add Product".
+   - Enter Name, Category, Price, and Minimum Stock Level (for alerts).
+   - Click "Save Product".
+
+B. Adding Stock (Batches):
+   - Find the product in the list.
+   - Click the "Plus" (+) icon next to the stock count.
+   - Enter Batch Number, Expiry Date, Quantity, and Cost Price.
+   - Click "Add Batch".
+   - *Note: The system uses FIFO (First-In-First-Out). It deducts from the oldest batch first during sales.*
+
+C. Editing/Deleting:
+   - Click the "Edit" (Pencil) icon to change product details.
+   - Click the "Delete" (Trash) icon to remove a product (only if no sales history exists).
+
+5. CUSTOMER MANAGEMENT
+----------------------
+Track loyal customers and manage debts.
+
+A. Adding a Customer:
+   - Go to "Customers".
+   - Click "Add Customer".
+   - Enter Name, Phone, and optional details.
+   - Click "Save".
+
+B. Managing Debt:
+   - In the Customer list, view "Current Debt".
+   - To record a debt payment:
+     - Click the "Wallet" icon next to the customer.
+     - Enter the amount paid by the customer.
+     - Select payment method (Cash/Transfer).
+     - Click "Confirm Payment". The debt balance will decrease.
+
+6. RETURNS MANAGEMENT (Admin Only)
+----------------------------------
+Process customer returns and refunds.
+
+A. Processing a Return:
+   - Go to "Returns".
+   - Click "Process New Return".
+   - Enter the Sale ID (found on the receipt) to load the transaction.
+   - Select the items being returned.
+   - Choose Condition:
+     - "Restock": Item is good and goes back into inventory.
+     - "Damaged": Item is bad and is recorded as a loss.
+   - Select Reason (e.g., Defective, Wrong Item).
+   - Click "Process Refund".
+
+B. Viewing History:
+   - The Returns page shows a log of all past returns.
+   - Click "View Receipt" to see details of a specific return.
+
+7. EXPENSES (Admin Only)
+------------------------
+Track shop expenditures.
+
+- Go to "Expenses".
+- Click "Add Expense".
+- Enter Description (e.g., "Fuel for Generator"), Category, Amount, and Date.
+- Click "Save Expense".
+- View the list to track daily/monthly spending.
+
+8. REPORTS & ANALYTICS (Admin Only)
+-----------------------------------
+Generate insights on business performance.
+
+- Go to "Reports".
+- Select Date Range: Today, Week, Month, Year, or Custom.
+- Tabs:
+  - Overview: Revenue, Profit Est., Top Products charts.
+  - Sales Details: List of every transaction.
+  - Inventory Health: Low stock and expiring items list.
+  - Financials: Expense breakdown.
+  - Return Analytics: Refund stats and loss analysis.
+- Export:
+  - Click "PDF Report" (top right) to generate a detailed business report.
+  - File saves to: Documents/AK Alheri Chemist/Reports.
+
+9. SETTINGS (Admin Only)
+------------------------
+Configure the system.
+
+A. User Management:
+   - Add new staff accounts (Cashier or Admin).
+   - Reset passwords or delete users.
+
+B. File Save Locations:
+   - Click folder icons to change where Receipts, Reports, and Backups are saved on your computer.
+   - Default: Documents/AK Alheri Chemist/...
+
+C. Data Backup & Restore:
+   - **Export Backup:** Click to save a full copy of your database. Do this Weekly!
+     - Save location: Documents/AK Alheri Chemist/Exports.
+   - **Restore Backup:** Use this ONLY to recover lost data. It overwrites current data with the backup file.
+
+--------------------------------------------------
+SUPPORT
+For technical support, please contact the system administrator.
+Copyright 2025 AK Alheri Chemist.
