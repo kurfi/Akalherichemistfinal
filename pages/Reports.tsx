@@ -286,15 +286,22 @@ const Reports: React.FC = () => {
         yPos += 5;
         autoTable(doc, {
             startY: yPos,
-            head: [['Date', 'Customer', 'Items', 'Discount', 'Total', 'Method']],
-            body: sales.slice(0, 50).map(s => [
-                format(s.date, 'yyyy-MM-dd HH:mm'),
-                s.customerName || 'Walk-in',
-                (s.items?.length || 0).toString(),
-                (s.discount || 0).toFixed(2),
-                s.finalAmount.toFixed(2),
-                s.paymentMethod
-            ]),
+            head: [['Date', 'Customer', 'Payment', 'Items', 'Profit', 'Discount', 'Total']],
+            body: sales.slice(0, 50).map(s => {
+                const saleCost = (s.items || []).reduce((itemSum, item) => {
+                    return itemSum + (item.quantity * (item.costPrice || 0));
+                }, 0);
+                const saleProfit = s.finalAmount - saleCost;
+                return [
+                    format(s.date, 'yyyy-MM-dd HH:mm'),
+                    s.customerName || 'Walk-in',
+                    s.paymentMethod,
+                    (s.items?.length || 0).toString(),
+                    saleProfit.toFixed(2),
+                    (s.discount || 0).toFixed(2),
+                    s.finalAmount.toFixed(2)
+                ];
+            }),
             styles: { fontSize: 8 }
         });
 
@@ -644,6 +651,7 @@ const Reports: React.FC = () => {
                                     <th className="p-4 font-medium">Customer</th>
                                     <th className="p-4 font-medium">Payment</th>
                                     <th className="p-4 font-medium">Items</th>
+                                    <th className="p-4 font-medium text-right">Profit</th>
                                     <th className="p-4 font-medium text-right">Discount</th>
                                     <th className="p-4 font-medium text-right">Total</th>
                                 </tr>
@@ -651,34 +659,44 @@ const Reports: React.FC = () => {
                             <tbody className="divide-y divide-slate-100">
                                 {filteredSales.length === 0 ? (
                                     <tr>
-                                        <td colSpan={6} className="p-8 text-center text-slate-400">
+                                        <td colSpan={7} className="p-8 text-center text-slate-400">
                                             {loading ? "Loading..." : "No sales found matching your criteria."}
                                         </td>
                                     </tr>
                                 ) : (
-                                    filteredSales.map((sale) => (
-                                        <tr key={sale.id} className="hover:bg-slate-50">
-                                            <td className="p-4">
-                                                <div className="font-medium text-slate-900">{format(sale.date, 'MMM dd, yyyy')}</div>
-                                                <div className="text-xs text-slate-500">{format(sale.date, 'HH:mm')}</div>
-                                            </td>
-                                            <td className="p-4 text-slate-700">{sale.customerName || 'Walk-in'}</td>
-                                            <td className="p-4">
-                                                <span className="px-2 py-1 rounded-full text-xs bg-slate-100 text-slate-600 border border-slate-200">
-                                                    {sale.paymentMethod}
-                                                </span>
-                                            </td>
-                                            <td className="p-4 text-slate-600">
-                                                {(sale.items?.length || 0)} items
-                                            </td>
-                                            <td className="p-4 text-right text-orange-500">
-                                                {(sale.discount || 0) > 0 ? `-₦${(sale.discount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '-'}
-                                            </td>
-                                            <td className="p-4 text-right font-bold text-slate-900">
-                                                ₦{sale.finalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </td>
-                                        </tr>
-                                    ))
+                                    filteredSales.map((sale) => {
+                                        const saleCost = (sale.items || []).reduce((itemSum, item) => {
+                                            return itemSum + (item.quantity * (item.costPrice || 0));
+                                        }, 0);
+                                        const saleProfit = sale.finalAmount - saleCost;
+
+                                        return (
+                                            <tr key={sale.id} className="hover:bg-slate-50">
+                                                <td className="p-4">
+                                                    <div className="font-medium text-slate-900">{format(sale.date, 'MMM dd, yyyy')}</div>
+                                                    <div className="text-xs text-slate-500">{format(sale.date, 'HH:mm')}</div>
+                                                </td>
+                                                <td className="p-4 text-slate-700">{sale.customerName || 'Walk-in'}</td>
+                                                <td className="p-4">
+                                                    <span className="px-2 py-1 rounded-full text-xs bg-slate-100 text-slate-600 border border-slate-200">
+                                                        {sale.paymentMethod}
+                                                    </span>
+                                                </td>
+                                                <td className="p-4 text-slate-600">
+                                                    {(sale.items?.length || 0)} items
+                                                </td>
+                                                <td className={`p-4 text-right font-medium ${saleProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                                                    ₦{saleProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                </td>
+                                                <td className="p-4 text-right text-orange-500">
+                                                    {(sale.discount || 0) > 0 ? `-₦${(sale.discount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '-'}
+                                                </td>
+                                                <td className="p-4 text-right font-bold text-slate-900">
+                                                    ₦{sale.finalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
                                 )}
                             </tbody>
                         </table>
