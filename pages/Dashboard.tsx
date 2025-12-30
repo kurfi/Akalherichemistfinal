@@ -277,26 +277,26 @@ const Dashboard: React.FC = () => {
             <div>
                 <h2 className="text-[10px] md:text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2 md:mb-3">Financial Status</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-                    {/* Receivables */}
+                    {/* Debt */}
                     <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-16 h-16 bg-orange-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
                         <div className="relative z-10">
                             <div className="flex items-center gap-2 mb-2">
                                 <div className="p-1.5 md:p-2 bg-orange-100 rounded-lg text-orange-600"><ArrowDownRight className="w-3.5 h-3.5 md:w-4 md:h-4" /></div>
-                                <p className="text-xs md:text-sm font-medium text-slate-600">Receivables</p>
+                                <p className="text-xs md:text-sm font-medium text-slate-600">Debt</p>
                             </div>
                             <h3 className="text-xl md:text-2xl font-bold text-slate-900">₦{stats.totalDebtToUs.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                             <p className="text-[10px] md:text-xs text-slate-400 mt-1">Debt customers owe us</p>
                         </div>
                     </div>
 
-                    {/* Payables */}
+                    {/* Unpaid Expenses */}
                     <div className="bg-white p-4 md:p-6 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-16 h-16 bg-rose-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
                         <div className="relative z-10">
                             <div className="flex items-center gap-2 mb-2">
                                 <div className="p-1.5 md:p-2 bg-rose-100 rounded-lg text-rose-600"><ArrowUpRight className="w-3.5 h-3.5 md:w-4 md:h-4" /></div>
-                                <p className="text-xs md:text-sm font-medium text-slate-600">Payables</p>
+                                <p className="text-xs md:text-sm font-medium text-slate-600">Unpaid Expenses</p>
                             </div>
                             <h3 className="text-xl md:text-2xl font-bold text-slate-900">₦{stats.totalDebtToPay.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
                             <p className="text-[10px] md:text-xs text-slate-400 mt-1">Unpaid expenses/bills</p>

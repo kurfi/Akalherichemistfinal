@@ -29,7 +29,7 @@ const Expenses: React.FC = () => {
             setNote('');
             setStatus('PAID');
             showToast('Expense recorded successfully!', 'success');
-            
+
             // Force sync
             syncData();
         } catch (error) {
@@ -69,20 +69,20 @@ const Expenses: React.FC = () => {
                             <label className="block text-xs md:text-sm font-medium text-slate-600 mb-1">Status</label>
                             <div className="flex gap-4">
                                 <label className="flex items-center gap-2 cursor-pointer">
-                                    <input 
-                                        type="radio" 
-                                        name="status" 
-                                        checked={status === 'PAID'} 
+                                    <input
+                                        type="radio"
+                                        name="status"
+                                        checked={status === 'PAID'}
                                         onChange={() => setStatus('PAID')}
                                         className="text-emerald-600 focus:ring-emerald-500"
                                     />
                                     <span className="text-xs md:text-sm text-slate-700">Paid</span>
                                 </label>
                                 <label className="flex items-center gap-2 cursor-pointer">
-                                    <input 
-                                        type="radio" 
-                                        name="status" 
-                                        checked={status === 'PENDING'} 
+                                    <input
+                                        type="radio"
+                                        name="status"
+                                        checked={status === 'PENDING'}
                                         onChange={() => setStatus('PENDING')}
                                         className="text-red-600 focus:ring-red-500"
                                     />
@@ -95,16 +95,16 @@ const Expenses: React.FC = () => {
                             <textarea value={note} onChange={e => setNote(e.target.value)} className="w-full p-2 border rounded-lg text-sm" rows={2}></textarea>
                         </div>
                         <button className={`w-full py-2 rounded-lg font-medium text-white text-sm ${status === 'PAID' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-amber-600 hover:bg-amber-700'}`}>
-                            {status === 'PAID' ? 'Record Payment' : 'Record Payable'}
+                            {status === 'PAID' ? 'Record Payment' : 'Record Unpaid Expense'}
                         </button>
                     </form>
                 </div>
             </div>
-            
+
             <div className="lg:col-span-2">
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <h2 className="text-base md:text-lg font-bold p-3 md:p-4 border-b border-slate-200 bg-slate-50 text-slate-800">Expense History</h2>
-                    
+
                     {/* Desktop Table View */}
                     <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-left">
@@ -124,19 +124,18 @@ const Expenses: React.FC = () => {
                                         <td className="p-4 font-medium text-slate-800">{ex.category}</td>
                                         <td className="p-4 text-slate-500 text-sm">{ex.note || '-'}</td>
                                         <td className="p-4">
-                                            <button 
+                                            <button
                                                 onClick={() => toggleStatus(ex.id!, ex.status)}
-                                                className={`flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full border transition-all ${
-                                                    ex.status === 'PAID' 
-                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' 
-                                                    : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
-                                                }`}
+                                                className={`flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full border transition-all ${ex.status === 'PAID'
+                                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                                        : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                                                    }`}
                                             >
                                                 {ex.status === 'PAID' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
                                                 {ex.status}
                                             </button>
                                         </td>
-                                        <td className="p-4 text-right font-bold text-slate-900 text-sm">₦{ex.amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                        <td className="p-4 text-right font-bold text-slate-900 text-sm">₦{ex.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -156,13 +155,12 @@ const Expenses: React.FC = () => {
                                 </div>
                                 {ex.note && <p className="text-xs text-slate-500 mb-3 italic">"{ex.note}"</p>}
                                 <div className="flex justify-end">
-                                    <button 
+                                    <button
                                         onClick={() => toggleStatus(ex.id!, ex.status)}
-                                        className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                                            ex.status === 'PAID' 
-                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-                                            : 'bg-amber-50 text-amber-700 border-amber-200'
-                                        }`}
+                                        className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border ${ex.status === 'PAID'
+                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                : 'bg-amber-50 text-amber-700 border-amber-200'
+                                            }`}
                                     >
                                         {ex.status === 'PAID' ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
                                         {ex.status}

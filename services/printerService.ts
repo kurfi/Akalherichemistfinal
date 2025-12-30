@@ -42,7 +42,11 @@ const formatLine = (left: string, right: string, width: number = 32): string => 
 /**
  * Generates a raw ESC/POS buffer for a Sale receipt.
  */
-export const generateReceiptBuffer = (sale: Sale, settings: any = {}): Uint8Array => {
+export const generateReceiptBuffer = (
+  sale: Sale,
+  settings: any = {},
+  customerDebt?: { previousDebt: number; newDebt: number; creditLimit: number } | null
+): Uint8Array => {
   const buffer: number[] = [];
   const width = 32; // Standard 58mm width usually fits ~32 chars. 80mm fits ~48.
   // Let's assume 32 for broad compatibility or adjustable.
@@ -82,39 +86,68 @@ export const generateReceiptBuffer = (sale: Sale, settings: any = {}): Uint8Arra
 
   sale.items.forEach(item => {
     // If name is too long, truncate or wrap. Simple truncate for now.
-    const name = item.productName.substring(0, 18); 
-    const total = item.total.toLocaleString(undefined, {minimumFractionDigits: 2});
+    const name = item.productName.substring(0, 18);
+    const total = item.total.toLocaleString(undefined, { minimumFractionDigits: 2 });
     const qtyPrice = `${item.quantity} x ${item.price}`;
-    
+
     // Line 1: Name and Total
     pushLine(formatLine(name, total, width));
     // Line 2: Qty details (indented slightly or just below)
-    pushLine(`  @ ${item.price}`); 
+    pushLine(`  @ ${item.price}`);
   });
   pushLine("- ".repeat(width));
 
   // 5. Totals (Right aligned logic handled by formatLine mostly, but let's keep simple)
   push(CMD.ALIGN_LEFT); // Reset align
-  
+
   if ((sale.discount || 0) > 0) {
-      pushLine(formatLine("Subtotal:", sale.totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2}), width));
-      pushLine(formatLine("Discount:", "-" + sale.discount.toLocaleString(undefined, {minimumFractionDigits: 2}), width));
+    pushLine(formatLine("Subtotal:", sale.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 }), width));
+    pushLine(formatLine("Discount:", "-" + sale.discount.toLocaleString(undefined, { minimumFractionDigits: 2 }), width));
   }
 
   push(CMD.BOLD_ON, CMD.TEXT_DOUBLE_HEIGHT);
-  pushLine(formatLine("TOTAL:", sale.finalAmount.toLocaleString(undefined, {minimumFractionDigits: 2}), width));
+  pushLine(formatLine("TOTAL:", sale.finalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 }), width));
   push(CMD.TEXT_NORMAL, CMD.BOLD_OFF);
-  
+
   pushLine(`Paid via: ${sale.paymentMethod}`);
   push(CMD.LF);
 
-  // 6. Footer (Center)
+  // 6. Debt Information for Credit Sales
+  if (sale.paymentMethod === 'CREDIT' && customerDebt) {
+    pushLine("= ".repeat(width));
+    push(CMD.ALIGN_CENTER, CMD.BOLD_ON);
+    pushLine("CREDIT SALE - DEBT ACCOUNT");
+    push(CMD.BOLD_OFF, CMD.ALIGN_LEFT);
+    pushLine("= ".repeat(width));
+
+    pushLine(formatLine("Previous Balance:", customerDebt.previousDebt.toLocaleString(undefined, { minimumFractionDigits: 2 }), width));
+    pushLine(formatLine("This Sale:", "+" + sale.finalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 }), width));
+    pushLine("- ".repeat(width));
+
+    push(CMD.BOLD_ON);
+    pushLine(formatLine("New Balance:", customerDebt.newDebt.toLocaleString(undefined, { minimumFractionDigits: 2 }), width));
+    push(CMD.BOLD_OFF);
+
+    pushLine(formatLine("Credit Limit:", customerDebt.creditLimit.toLocaleString(undefined, { minimumFractionDigits: 2 }), width));
+
+    // Warning if credit limit exceeded
+    if (customerDebt.newDebt > customerDebt.creditLimit) {
+      push(CMD.LF);
+      push(CMD.ALIGN_CENTER, CMD.BOLD_ON);
+      pushLine("!!! CREDIT LIMIT EXCEEDED !!!");
+      push(CMD.BOLD_OFF, CMD.ALIGN_LEFT);
+    }
+
+    push(CMD.LF);
+  }
+
+  // 7. Footer (Center)
   push(CMD.ALIGN_CENTER);
   pushLine("Mun gode da kasuwancin ku!");
   pushLine("Thank you for your patronage!");
   push(CMD.LF, CMD.LF, CMD.LF); // Feed
 
-  // 7. Cut
+  // 8. Cut
   push(CMD.CUT);
 
   return new Uint8Array(buffer);

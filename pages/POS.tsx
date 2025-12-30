@@ -28,6 +28,7 @@ export default function POS() {
     const [multipayEntries, setMultipayEntries] = useState<{ method: PaymentMethod; amount: string }[]>([]);
     const [paperSize, setPaperSize] = useState<'80mm' | '58mm'>('80mm');
     const [discount, setDiscount] = useState<number>(0);
+    const [receiptCustomerDebt, setReceiptCustomerDebt] = useState<{ previousDebt: number; newDebt: number; creditLimit: number } | null>(null);
     const { showToast } = useToast(); // Initialize useToast
 
     // Custom hook for printing
@@ -254,11 +255,23 @@ export default function POS() {
                     const customer = await db.customers.get(selectedCustomer.id);
                     if (customer) {
                         const currentDebt = customer.currentDebt || 0;
-                        await db.customers.update(customer.id!, { 
-                            currentDebt: currentDebt + finalAmount,
+                        const newDebt = currentDebt + finalAmount;
+
+                        // Store debt info for receipt display
+                        setReceiptCustomerDebt({
+                            previousDebt: currentDebt,
+                            newDebt: newDebt,
+                            creditLimit: customer.creditLimit || 0
+                        });
+
+                        await db.customers.update(customer.id!, {
+                            currentDebt: newDebt,
                             updated_at: new Date().toISOString()
                         });
                     }
+                } else {
+                    // Clear debt info for non-credit sales
+                    setReceiptCustomerDebt(null);
                 }
             });
 
@@ -296,7 +309,7 @@ export default function POS() {
     const handlePrintRaw = async () => {
         if (!receiptSale) return;
         try {
-            const buffer = generateReceiptBuffer(receiptSale);
+            const buffer = generateReceiptBuffer(receiptSale, {}, receiptCustomerDebt);
             await printRawReceipt(buffer);
         } catch (error) {
             console.error("Raw print failed:", error);
@@ -850,6 +863,38 @@ export default function POS() {
                                             <span>{receiptSale.paymentMethod}</span>
                                         )}
                                     </div>
+
+                                    {/* Debt Information for Credit Sales */}
+                                    {receiptSale.paymentMethod === PaymentMethod.CREDIT && receiptCustomerDebt && (
+                                        <div className="mt-3 pt-3 border-t border-dashed border-slate-300">
+                                            <div className="text-center mb-2 font-bold text-xs md:text-sm text-orange-600">
+                                                CREDIT SALE - DEBT ACCOUNT
+                                            </div>
+                                            <div className="space-y-1 text-[10px] md:text-xs">
+                                                <div className="flex justify-between">
+                                                    <span>Previous Balance:</span>
+                                                    <span className="font-medium">₦{receiptCustomerDebt.previousDebt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>This Sale:</span>
+                                                    <span className="font-medium">+₦{receiptSale.finalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                </div>
+                                                <div className="flex justify-between border-t border-slate-300 pt-1 mt-1">
+                                                    <span className="font-bold">New Balance:</span>
+                                                    <span className="font-bold text-orange-600">₦{receiptCustomerDebt.newDebt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                </div>
+                                                <div className="flex justify-between text-slate-500">
+                                                    <span>Credit Limit:</span>
+                                                    <span>₦{receiptCustomerDebt.creditLimit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                                </div>
+                                                {receiptCustomerDebt.newDebt > receiptCustomerDebt.creditLimit && (
+                                                    <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-center">
+                                                        <span className="text-red-600 font-bold text-[9px] md:text-[10px]">⚠️ CREDIT LIMIT EXCEEDED</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="text-center text-[10px] md:text-xs text-slate-500 mt-6">
@@ -863,7 +908,7 @@ export default function POS() {
                                 onClick={handlePrintRaw}
                                 className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-900 transition-colors text-xs md:text-sm"
                             >
-                                <Printer className="w-3.5 h-3.5 md:w-4 md:h-4" /> Thermal
+                                <Printer className="w-3.5 h-3.5 md:w-4 md:h-4" /> Print with Thermal
                             </button>
                             <button
                                 onClick={handleDownloadImage}
