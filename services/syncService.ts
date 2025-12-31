@@ -234,8 +234,17 @@ const pushChangesToSupabase = async () => {
             if (s?.supabase_id) resolved.saleId = s.supabase_id;
           }
           if (typeof resolved.staffId === 'number') {
-            const u = await db.users.get(resolved.staffId);
-            if (u?.supabase_id) resolved.staffId = u.supabase_id;
+            if (resolved.staffId === 0) {
+              resolved.staffId = null;
+            } else {
+              const u = await db.users.get(resolved.staffId);
+              if (u?.supabase_id) {
+                resolved.staffId = u.supabase_id;
+              } else {
+                console.warn(`Sync: Staff ID ${resolved.staffId} not found locally. Setting to null.`);
+                resolved.staffId = null;
+              }
+            }
           }
         }
         if (change.table_name === 'returnedItems') {
@@ -269,6 +278,10 @@ const pushChangesToSupabase = async () => {
           delete createPayload.id; // Remove local numeric ID
           delete createPayload.supabase_id; // Remove supabase_id
 
+          if (change.table_name === 'returns') {
+            delete createPayload.customerName;
+          }
+
           // Resolve Foreign Keys
           createPayload = await resolveFKs(createPayload);
 
@@ -294,6 +307,10 @@ const pushChangesToSupabase = async () => {
             delete updatePayload.password;
           }
           delete updatePayload.supabase_id; // Remove supabase_id from update payload
+
+          if (change.table_name === 'returns') {
+            delete updatePayload.customerName;
+          }
 
           // Resolve Foreign Keys (for updates too, though less common to change FKs)
           const resolvedUpdatePayload = await resolveFKs(updatePayload);

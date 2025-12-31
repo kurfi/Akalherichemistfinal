@@ -37,21 +37,35 @@ if (!supabaseUrl || !supabaseAnonKey) {
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
     async function testConnection() {
-      console.log("Testing Supabase connection (user_profiles)...");
+      console.log("Testing Supabase connection...");
       const start = Date.now();
       try {
-        // Attempt a simple count query
-        const { count, error } = await supabase
+        // Check user_profiles
+        const { count: usersCount, error: usersError } = await supabase
             .from('user_profiles')
             .select('*', { count: 'exact', head: true });
         
-        const duration = Date.now() - start;
-        if (error) {
-          console.error("Supabase Error:", error);
-        } else {
-          console.log(`Connection successful! Ping took ${duration}ms`);
-          console.log(`Row count in 'user_profiles': ${count}`);
-        }
+        if (usersError) console.error("user_profiles Error:", usersError);
+        else console.log(`user_profiles: OK (${usersCount} rows)`);
+
+        // Check returns
+        const { count: returnsCount, error: returnsError } = await supabase
+            .from('returns')
+            .select('*', { count: 'exact', head: true });
+        
+        if (returnsError) console.error("returns Error:", returnsError);
+        else console.log(`returns: OK (${returnsCount} rows)`);
+
+        // Check returned_items
+        const { count: itemsCount, error: itemsError } = await supabase
+            .from('returned_items')
+            .select('*', { count: 'exact', head: true });
+
+        if (itemsError) console.error("returned_items Error:", itemsError);
+        else console.log(`returned_items: OK (${itemsCount} rows)`);
+
+        console.log(`Connection test completed in ${Date.now() - start}ms`);
+
       } catch (err) {
         console.error("Unexpected error:", err);
       }

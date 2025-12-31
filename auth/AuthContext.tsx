@@ -79,21 +79,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     if (profile) {
-      const user: User = {
+      let user: User = {
         supabase_id: profile.id,
         username: profile.username || email || 'User',
         role: profile.role as UserRole,
         updated_at: profile.updated_at
       };
-      setCurrentUser(user);
 
       // Save to local DB so the user can continue working offline *after* this initial successful login session
       const localUser = await db.users.where('supabase_id').equals(userId).first();
       if (localUser) {
-        await db.users.update(localUser.id!, { ...user, id: localUser.id });
+        await db.users.update(localUser.id!, { ...user });
+        user = { ...user, id: localUser.id };
       } else {
-        await db.users.add(user);
+        const newId = await db.users.add(user);
+        user = { ...user, id: newId };
       }
+      
+      setCurrentUser(user);
     } else {
       throw new Error("Profile not found.");
     }

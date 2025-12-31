@@ -9,6 +9,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { savePdf, saveElementAsImage, generateAndSavePdfFromHtml } from '../services/pdfService';
 import { generateReceiptBuffer, printRawReceipt } from '../services/printerService';
+import { isWebUSBSupported, requestUSBPrinter, printRawUSB, isPrinterConnected, getPrinterInfo } from '../services/webUsbPrinterService';
 import { usePrintReceipt, PrintReceiptButton } from '../components/PrintReceipt'; // Import the new hook and component
 import { useToast } from '../contexts/ToastContext';
 import { useAuth } from '../auth/AuthContext';
@@ -308,12 +309,52 @@ export default function POS() {
 
     const handlePrintRaw = async () => {
         if (!receiptSale) return;
+
         try {
             const buffer = generateReceiptBuffer(receiptSale, {}, receiptCustomerDebt);
-            await printRawReceipt(buffer);
+
+            // Check if WebUSB is supported (Chrome/Edge)
+            if (isWebUSBSupported()) {
+                // Try WebUSB printing first
+                try {
+                    // Check if we have a connected printer
+                    if (!isPrinterConnected()) {
+                        showToast('Please select your thermal printer...', 'info');
+                        const printer = await requestUSBPrinter();
+
+                        if (!printer) {
+                            showToast('No printer selected. Print cancelled.', 'info');
+                            return;
+                        }
+
+                        showToast(`Connected to ${getPrinterInfo(printer)}`, 'success');
+                    }
+
+                    // Print using WebUSB
+                    await printRawUSB(buffer);
+                    showToast('Receipt sent to thermal printer!', 'success');
+                    return;
+
+                } catch (usbError: any) {
+                    console.error("WebUSB print failed:", usbError);
+                    showToast(`WebUSB print failed: ${usbError.message}`, 'error');
+
+                    // Don't fall through to Tauri - just show error
+                    return;
+                }
+            }
+
+            // Fallback to Tauri printing (for desktop app)
+            try {
+                await printRawReceipt(buffer);
+            } catch (tauriError: any) {
+                console.error("Tauri print failed:", tauriError);
+                showToast("Thermal printing not available. Please use PDF or Image download.", 'error');
+            }
+
         } catch (error) {
-            console.error("Raw print failed:", error);
-            showToast("Failed to generate raw print data.", 'error');
+            console.error("Print preparation failed:", error);
+            showToast("Failed to prepare print data.", 'error');
         }
     };
 

@@ -198,7 +198,7 @@ const Returns: React.FC = () => {
         db.customers,
         async () => {
           // 1. Add Return Entry
-          const staffId = currentUser?.id || 0; // Use current user's ID
+          const staffId = currentUser?.id; // Use current user's ID (undefined if not logged in)
           const returnEntry: Omit<Return, 'id'> = {
             saleId: originalSale.id!,
             customerId: originalSale.customerId,
